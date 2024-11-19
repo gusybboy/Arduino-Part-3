@@ -1,0 +1,53 @@
+/*
+Goal: Use a joystick to control a stepper motor's speed and direction.
+The joystick input determines motor rotation speed and direction.
+*/
+
+#include <Stepper.h> // Include Stepper library for motor control
+
+// Define number of steps per revolution (adjust as needed)
+#define STEPS 32
+
+// Define stepper motor control pins
+#define IN1 11
+#define IN2 10
+#define IN3 9
+#define IN4 8
+
+// Initialize stepper library with control pins
+Stepper stepper(STEPS, IN4, IN2, IN3, IN1);
+
+// Joystick input pin (connected to A0)
+#define joystick A0
+
+// Define deadzone range for joystick
+#define JOYSTICK_DEADZONE_LOW 485
+#define JOYSTICK_DEADZONE_HIGH 535
+
+void setup() {
+  Serial.begin(9600); // Start serial communication at 9600 baud
+}
+
+void loop() {
+  int val = analogRead(joystick); // Read joystick value from A0
+  Serial.println(val);            // Print joystick value for debugging
+
+  // Check if joystick is in deadzone
+  if (val > JOYSTICK_DEADZONE_LOW && val < JOYSTICK_DEADZONE_HIGH) {
+    stepper.setSpeed(0);          // Stop the motor
+  }
+  else if (val >= JOYSTICK_DEADZONE_HIGH) {
+    // Joystick pushed forward, move motor clockwise
+    int speed = map(val, JOYSTICK_DEADZONE_HIGH, 1023, 5, 500); // Map to speed
+    stepper.setSpeed(speed);     // Set motor speed
+    stepper.step(1);             // Move 1 step forward
+  }
+  else if (val <= JOYSTICK_DEADZONE_LOW) {
+    // Joystick pulled backward, move motor counterclockwise
+    int speed = map(val, 0, JOYSTICK_DEADZONE_LOW, 5, 500); // Map to speed
+    stepper.setSpeed(speed);     // Set motor speed
+    stepper.step(-1);            // Move 1 step backward
+  }
+
+  delay(10); // Small delay for stability
+}
