@@ -1,0 +1,25 @@
+/*
+Goal: Use a potentiometer to control a servo motor's position
+and display the corresponding voltage on the Serial Monitor.
+*/
+
+#include <Servo.h> // Include Servo library for servo motor control
+Servo myservo;     // Create Servo object to control a servo
+int potpin = A0;   // Define analog pin for potentiometer
+int val = 0;       // Variable to store analog value from potentiometer
+int pos = 0;       // Variable for servo position
+
+void setup() {
+  myservo.attach(9);  // Attach servo to pin 9
+  Serial.begin(9600); // Begin Serial communication at 9600 baud
+}
+
+void loop() {
+  val = analogRead(potpin);               // Read potentiometer value (0-1023)
+  int volt = map(val, 0, 1023, 0, 500);   // Map to 0-500 (for voltage in 0.01V)
+  float voltage = volt / 100.0;           // Convert to actual voltage (0-5.00V)
+  pos = map(val, 0, 1023, 180, 0);        // Map potentiometer value to servo angle
+  Serial.println(voltage);                // Print voltage to Serial Monitor
+  myservo.write(pos);                     // Move servo to calculated angle
+  delay(15);                              // Wait for servo to reach position
+}
